@@ -7,7 +7,7 @@ A comprehensive lifestyle blog website featuring magazine-style design with warm
 ### Design & Style
 - **Magazine/Editorial Design**: Professional layout emphasizing typography and high-quality imagery
 - **Warm Color Scheme**: Cozy brown and orange tones creating an inviting atmosphere
-- **AuraSphere Branding**: Consistent brand identity throughout the site
+- **FusionFields Branding**: Consistent brand identity throughout the site
 - **Responsive Design**: Optimized for all devices from mobile to desktop
 
 ### Content Categories
