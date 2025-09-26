@@ -64,22 +64,9 @@ function initSearch() {
             }
         });
 
-        // Search suggestions (simplified)
-        searchInput.addEventListener('input', function() {
-            const query = this.value.trim();
-            if (query.length > 2) {
-                // In a real implementation, this would show search suggestions
-                console.log('Search suggestions for:', query);
-            }
-        });
-    }
-
-    function performSearch() {
-        const query = searchInput.value.trim();
-        if (query) {
-            // In a real implementation, this would redirect to search results
-            console.log('Searching for:', query);
-            alert(`Searching for: "${query}"\n(Search functionality would be implemented with a backend)`);
+        // Initialize search suggestions
+        if (typeof initSearchSuggestions === 'function') {
+            initSearchSuggestions();
         }
     }
 }
@@ -337,6 +324,119 @@ function shareOnPlatform(platform) {
         window.open(shareUrl, 'share', 'width=600,height=400,scrollbars=yes');
     }
 }
+
+// Update share buttons with current URL
+function updateShareButtons() {
+    const shareButtons = document.querySelectorAll('.share-btn');
+    const currentUrl = window.location.href;
+    
+    shareButtons.forEach(button => {
+        const href = button.getAttribute('href');
+        if (href && href.includes('url=')) {
+            button.setAttribute('href', href + encodeURIComponent(currentUrl));
+        }
+    });
+}
+
+// Pagination Functionality
+function initPagination() {
+    const paginationContainers = document.querySelectorAll('.pagination');
+    
+    paginationContainers.forEach(container => {
+        const buttons = container.querySelectorAll('.pagination-btn');
+        const currentPage = getCurrentPage();
+        
+        // Add click handlers to pagination buttons
+        buttons.forEach(button => {
+            if (button.classList.contains('pagination-next')) {
+                button.addEventListener('click', () => goToNextPage(container));
+            } else if (button.classList.contains('pagination-prev')) {
+                button.addEventListener('click', () => goToPrevPage(container));
+            } else if (!isNaN(button.textContent.trim())) {
+                button.addEventListener('click', () => goToPage(parseInt(button.textContent.trim()), container));
+            }
+        });
+        
+        // Update active state
+        updatePaginationState(container, currentPage);
+    });
+}
+
+function getCurrentPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return parseInt(urlParams.get('page')) || 1;
+}
+
+function goToPage(page, container) {
+    const url = new URL(window.location);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+}
+
+function goToNextPage(container) {
+    const currentPage = getCurrentPage();
+    const maxPage = getMaxPage(container);
+    if (currentPage < maxPage) {
+        goToPage(currentPage + 1, container);
+    }
+}
+
+function goToPrevPage(container) {
+    const currentPage = getCurrentPage();
+    if (currentPage > 1) {
+        goToPage(currentPage - 1, container);
+    }
+}
+
+function getMaxPage(container) {
+    const buttons = container.querySelectorAll('.pagination-btn');
+    let maxPage = 1;
+    buttons.forEach(button => {
+        const pageNum = parseInt(button.textContent.trim());
+        if (!isNaN(pageNum) && pageNum > maxPage) {
+            maxPage = pageNum;
+        }
+    });
+    return maxPage;
+}
+
+function updatePaginationState(container, currentPage) {
+    const buttons = container.querySelectorAll('.pagination-btn');
+    const maxPage = getMaxPage(container);
+    
+    // Remove active class from all buttons
+    buttons.forEach(button => {
+        button.classList.remove('active');
+    });
+    
+    // Add active class to current page button
+    buttons.forEach(button => {
+        const pageNum = parseInt(button.textContent.trim());
+        if (pageNum === currentPage) {
+            button.classList.add('active');
+        }
+    });
+    
+    // Update prev/next button states
+    const prevButton = container.querySelector('.pagination-prev');
+    const nextButton = container.querySelector('.pagination-next');
+    
+    if (prevButton) {
+        prevButton.disabled = currentPage <= 1;
+        prevButton.classList.toggle('disabled', currentPage <= 1);
+    }
+    
+    if (nextButton) {
+        nextButton.disabled = currentPage >= maxPage;
+        nextButton.classList.toggle('disabled', currentPage >= maxPage);
+    }
+}
+
+// Initialize share buttons when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateShareButtons();
+    initPagination();
+});
 
 // Utility Functions
 function validateEmail(email) {
